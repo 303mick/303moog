@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Node
+node_modules/
+
+# Build output (JUCE / CMake / Visual Studio)
+build/
+Builds/
+cmake-build-*/
+out/
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Compiled plugins and binaries
+*.vst3
+*.dll
+*.exe
+*.pdb
+
+# Editors
+.vscode/
+.idea/
