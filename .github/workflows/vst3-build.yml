@@ -38,6 +38,16 @@ jobs:
         run: cmake --build build --config Release -j4
       - name: Tests
         run: ctest --test-dir build --output-on-failure
+      - name: Steinberg VST3 SDK validator (official conformance tests)
+        run: |
+          sudo apt-get install -y libgtkmm-3.0-dev libjack-jackd2-dev
+          git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/steinbergmedia/vst3sdk.git /tmp/vst3sdk
+          cmake -S /tmp/vst3sdk -B /tmp/sdkbuild -DCMAKE_BUILD_TYPE=Release -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=ON -DSMTG_CREATE_PLUGIN_LINK=OFF
+          cmake --build /tmp/sdkbuild --target validator -j4
+          for v in $(find build -name "*.vst3" -type d); do
+            /tmp/sdkbuild/bin/Release/validator "$v" | tee validator.log
+            grep -q "0 tests failed" validator.log
+          done
       - name: Native UI snapshots
         run: |
           S=$(find build -name snapshot -type f -perm -u+x | head -1)
