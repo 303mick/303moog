@@ -8,7 +8,7 @@ Date: 2026-10-24. Author: ux-architect. Inputs: `design/UI_AGENTS.md`, `brief.md
 3. Grind's four modes are named Soft, Hard, Fold, Rectify (the brief says "4 types" only). DSP may rename them; the copy deck is the one place to change.
 4. Brutality reaches each target through an **amount** per target (references.md open question 5). Amounts belong to the existing macro, not a new module.
 5. With the host transport stopped, Cleave free-runs at the last known tempo (DSP to confirm); with no known tempo it uses 120 BPM and the footer says "not synced".
-6. Text-size risk: the minimum window is 0.8x, so 11 px legends render at 8.8 px there (see section 7). Set legends at 11 px and values at 12 px, never lower.
+6. Text-size risk: the minimum window is 0.88x (968 x 598), so 11 px legends render at 9.7 px there (see section 7). The old 880 x 544 minimum (0.8x) was rejected because it rendered them at 8.8 px. Set legends at 11 px and values at 12 px, never lower.
 7. Base unit 4 px; spacing from the dense scale (2, 4, 6, 8, 12, 16, 24). Margin 12, gutter 8, plate padding 8. Derived exceptions are marked "derived".
 
 ---
@@ -151,7 +151,7 @@ HERO = the black card at top left (x 12, y 60, 628 x 340). In the wireframe labe
 | Item | Value |
 |---|---|
 | Default | 1100 x 680 (708 with host frame, fits 728 usable on 1366x768) |
-| Minimum / maximum | 880 x 544 (0.8x) / 1650 x 1020 (1.5x) |
+| Minimum / maximum | 968 x 598 (0.88x) / 1650 x 1020 (1.5x). Why the minimum is not the brief's 880 x 544: at 0.8x the 11 px legends would render at 8.8 px, below the 10 px floor; at 0.88x they render at 9.7 px. See decisions.md |
 | Resize | Uniform scale of the whole canvas, aspect locked 1100:680, no reflow, no scrollbars. Size remembered per instance and as the default for new ones |
 | Pixel density | Vector; hairlines stay 1 device-independent px at 100 to 200% |
 | Overlays | Scale with the canvas; never leave the window |
@@ -202,7 +202,7 @@ HERO = the black card at top left (x 12, y 60, 628 x 340). In the wireframe labe
 | **Save popover open** | Paper popover under Save: name, tags, Save, Cancel | Enter saves; Esc cancels |
 | **Error** | Tag struck by an ink X; footer message with a red-orange stamp mark (state colour); no modal | Messages in section 6.7 |
 | **Success** | "Saved" stamp over tag, footer line | Gone after 1.5 s |
-| **Minimum size** | Whole canvas at 0.8x | Section 7 |
+| **Minimum size** | Whole canvas at 0.88x (968 x 598) | Section 7 |
 
 ### 4.3 Browser states
 | State | Content |
@@ -441,7 +441,7 @@ Sentence case everywhere except the module names and wordmark, which are all cap
 | Triplet and Dotted together | Dotted wins; Trip switches off, footer "Dotted and triplet can't be combined. Dotted is on." |
 | All 16 steps muted | Hero strip reads "0 of 16 slices on"; output is silent at Mix 100%; footer note once: "All slices are muted. Click a slice to switch it on." |
 | Preset loaded with an unlinked target | Chip hollow, no ring; saved state respected |
-| Window at 880 x 544 | Whole canvas at 0.8x. Legends render at 8.8 px (below the 10 px floor). Mitigation inside this spec: no information is carried by tertiary text alone (step numbers also have tag shapes; ruler is decorative). Recommend raising the minimum to 968 x 598 (0.88x, 9.7 px) in decisions.md; the brief's 880 stays in the spec until the lead decides |
+| Window at 968 x 598 (minimum) | Whole canvas at 0.88x. Legends render at 9.7 px, the closest to the 10 px floor the layout allows; the old 880 x 544 would give 8.8 px. No information is carried by tertiary text alone (step numbers also have tag shapes; ruler is decorative). Dragging the host frame below 968 x 598 stops at the minimum. Decision recorded in decisions.md |
 | Window at 1650 x 1020 | 1.5x; hairlines stay 1 device-independent px. Larger than a 1366x768 screen can show; the host clips it |
 | 100 to 200% display scaling | Vector; no bitmaps |
 | Mono input | Waveform shows the single channel; meters show one bar twice |
@@ -457,3 +457,69 @@ Sentence case everywhere except the module names and wordmark, which are all cap
 3. Every control in the brief appears on the front page; browser internals, Save, menus and amounts are the only things behind disclosure.
 4. Muted steps carry an X stamp, not dimming alone. Rings appear on exactly Chance, Drive, Crush, Cutoff.
 5. No label is hover-only. Mix is visible at all times.
+6. Window minimum is 968 x 598 and the maximum 1650 x 1020, aspect locked; the builder sets both as editor constraints.
+
+---
+
+## 9. Parameter map
+
+Every control with a row here exists in the plugin; a control with no row does not. This table becomes `plugin.json`. Ranges and defaults come from sections 3, 5 and 6 (copy deck, wireframe, Reset tooltips). "(assumed)" marks a value ux.md did not state. Percent parameters are stored as 0 to 100 in the unit shown. Skew 1.0 means linear; 0.25 is the skew for Hz ranges (low frequencies get more of the knob travel). Choice and bool parameters are stepped.
+
+### 9.1 Parameters
+| id | Display name | Type | Min | Max | Default | Unit | Skew | Decimals | Automatable | Choices |
+|---|---|---|---|---|---|---|---|---|---|---|
+| cleaveGrid | Grid | choice | 0 | 4 | 2 (1/16) (assumed from wireframe) | | | 0 | yes | 1/4, 1/8, 1/16, 1/32, 1/64 |
+| cleaveTriplet | Trip | bool | 0 | 1 | 0 (off) | | | 0 | yes | Off, On |
+| cleaveDotted | Dot | bool | 0 | 1 | 0 (off) | | | 0 | yes | Off, On. Dotted wins when both are on (section 7) |
+| cleaveChance | Chance | float | 0 | 100 | 100 | % | 1.0 | 0 | yes | |
+| cleaveSwing | Swing | float | 0 | 100 | 0 | % | 1.0 | 0 | yes | |
+| cleaveGate | Gate shape | float | 0 | 100 | 0 (Hard) | % soft | 1.0 | 0 | yes | Display: 0 reads "Hard", 100 reads "Soft", between reads "{n}% soft". Default 0 from the wireframe |
+| cleaveReverse | Reverse chance | float | 0 | 100 | 0 | % | 1.0 | 0 | yes | |
+| cleavePitchDrop | Pitch drop | float | -24 | 0 | 0 | st | 1.0 | 0 (assumed) | yes | |
+| grindMode | Mode | choice | 0 | 3 | 0 (Soft) (assumed) | | | 0 | yes | Soft, Hard, Fold, Rectify |
+| grindDrive | Drive | float | 0 | 36 | 0 | dB | 1.0 | 1 (assumed) | yes | |
+| grindCrush | Crush | float | 1 | 24 | 24 | bit | 1.0 | 0 (assumed; stored continuous so Brutality can move it smoothly) | yes | |
+| grindRate | Rate | choice | 0 | 6 | 0 (Full) | | | 0 | yes | Full, 1/2, 1/4, 1/8, 1/16, 1/32, 1/64 (assumed: the copy deck gives "Full, 1/2, 1/4 ... 1/64", powers of two) |
+| grindTone | Tone | float | -100 | 100 | 0 | | 1.0 | 0 | yes | Display with sign: "+0", "-35", "+60" |
+| filterType | Type | choice | 0 | 2 | 0 (Low-pass) (assumed) | | | 0 | yes | Low-pass, Band-pass, High-pass |
+| filterCutoff | Cutoff | float | 20 | 20000 | 20000 (assumed: filter open at Init) | Hz | 0.25 | 0 (shown as "1.2 kHz" above 1000 Hz, 2 decimals in kHz) | yes | |
+| filterRes | Resonance | float | 0 | 100 | 0 (assumed) | % | 1.0 | 0 | yes | |
+| mix | Mix | float | 0 | 100 | 100 | % | 1.0 | 0 | yes | |
+| outputGain | Output gain | float | -24 | 12 | 0 | dB | 1.0 | 1 | yes | |
+| brutality | Brutality | float | 0 | 10 | 0 | | 1.0 | 1 | yes | |
+| step1 | Step 1 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step2 | Step 2 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step3 | Step 3 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step4 | Step 4 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step5 | Step 5 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step6 | Step 6 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step7 | Step 7 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step8 | Step 8 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step9 | Step 9 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step10 | Step 10 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step11 | Step 11 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step12 | Step 12 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step13 | Step 13 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step14 | Step 14 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step15 | Step 15 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+| step16 | Step 16 | bool | 0 | 1 | 1 (on) | | | 0 | yes | Muted, On |
+
+Notes for the builder:
+- Parameter order for the host: grid and toggles, Cleave knobs, Grind, Filter, Output, Brutality, steps 1 to 16.
+- **Brutality link amounts are not host parameters** (section 5.5). The four amounts (chance +60%, drive +70%, crush +70%, cutoff -40%; range -100 to +100, snap to 0 within 3%) and the four link on/off flags are saved in plugin state and in presets, so they have no row above. If the lead decides to make them automatable, add `brutalityChanceAmount`, `brutalityDriveAmount`, `brutalityCrushAmount`, `brutalityCutoffAmount` as float -100 to +100, defaults 60, 70, 70, -40, unit %, skew 1.0, 0 decimals.
+- The four targets (cleaveChance, grindDrive, grindCrush, filterCutoff) hold the **base** value. The heard value (base plus Brutality x amount, section 5.6) is computed in the processor and shown on the ring; the host never sees it.
+- Not parameters (state only, outside presets): MIDI CC mappings, window size, first-run hint flag. In presets: the parameters above plus amounts and link flags.
+- Init resets every row to its default.
+
+### 9.2 Live values crossing from the audio thread
+These are read-only for the UI. The audio thread writes; the UI reads at display rate (about 30 to 60 Hz) through a lock-free structure (atomics or a single-writer ring buffer). The UI never blocks the audio thread.
+
+| Value | Used by | Notes |
+|---|---|---|
+| Input level, peak, per channel | In meter, "No audio" state (no signal for 2 s), footer "Audio in" | Peak in dB; the UI keeps the 1.5 s peak hold and the CLIP latch |
+| Output level, peak, per channel | Out meter, CLIP stamp | Same. Click on a meter clears hold and CLIP on the UI side only |
+| Waveform data | Hero waveform | Downsampled min/max pairs of the summed input, one block per display frame, covering the 16-step window; mono and stereo handled on the audio side |
+| Slice playhead | Playing-step flash, ruler, "playing" state | Current step index (0 to 15) and position in the step; also whether the slice was muted, chance-skipped or reversed, so the flash matches what is heard |
+| Heard values of the four Brutality targets | Rings, readouts on Chance, Drive, Crush, Cutoff | Computed from base plus Brutality x amount; can be computed on the UI side from the parameters if the maths is shared |
+| Host tempo and sync flag | Footer "{n} BPM, synced to host" or "not synced" | Updated when the host reports it |
+| Host bypass flag | BYPASSED stamp, dimming | Written from the processor's bypass state |
