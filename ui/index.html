@@ -44,8 +44,8 @@ select{max-width:210px;padding-right:6px}
 #zoomer{position:relative;margin:0 auto}
 #cabinet{position:absolute;left:0;top:0;transform-origin:0 0;display:flex;flex-direction:column;
   border-radius:8px 8px 4px 4px;box-shadow:0 30px 60px rgba(0,0,0,.75),0 0 0 1px #000}
-.wood-v{background-color:#7b4119;background-image:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,0) 24%,rgba(255,255,255,.07) 55%,rgba(0,0,0,.42)),var(--wood-v)}
-.wood-h{background-color:#7b4119;background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(0,0,0,0) 32%,rgba(0,0,0,.4)),var(--wood-h)}
+.wood-v{background-color:#3a1b0b;background-image:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 22%,rgba(255,200,140,.08) 52%,rgba(0,0,0,.5)),var(--wood-v)}
+.wood-h{background-color:#3a1b0b;background-image:linear-gradient(180deg,rgba(255,200,140,.2),rgba(0,0,0,0) 30%,rgba(0,0,0,.5)),var(--wood-h)}
 .rail{height:26px;position:relative}
 .rail.top{border-radius:8px 8px 0 0;height:30px}
 .rail.mid{height:22px;box-shadow:0 -2px 5px rgba(0,0,0,.6),0 2px 5px rgba(0,0,0,.6)}
@@ -70,7 +70,9 @@ select{max-width:210px;padding-right:6px}
 .mtitle{font:800 9.5px/1.1 Arial,sans-serif;letter-spacing:.07em;color:#f2eee1;text-transform:uppercase;white-space:nowrap}
 .msub{font:600 7px/1.3 Arial,sans-serif;letter-spacing:.16em;color:#a29e90;margin-top:1px;text-transform:uppercase}
 .mrule{height:1px;margin:1px 8px 0;background:linear-gradient(90deg,transparent,#d7d2c2 14%,#d7d2c2 86%,transparent);opacity:.8}
-.mhead .led{position:absolute;right:11px;top:6px;width:6px;height:6px}
+.mhead .led{position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:7px;height:7px;z-index:1}
+.kval{font:800 7px/1 Arial,sans-serif;color:#ffd77a;letter-spacing:.06em;margin-top:2px;height:8px;text-align:center}
+.kcell{align-self:start}
 .knobs{display:grid;grid-template-columns:repeat(2,54px);justify-content:center;gap:2px 0;margin-top:7px}
 .kcell{display:flex;flex-direction:column;align-items:center}
 .knob{width:54px;height:54px;cursor:ns-resize;touch-action:none;outline:none;border-radius:50%}
@@ -92,7 +94,8 @@ select{max-width:210px;padding-right:6px}
 .vu .led.on{background:#46e05a;box-shadow:0 0 6px 1px rgba(70,224,90,.7),0 0 0 1px #0a0a0a}
 .vu .led.on.hot{background:#ffb02e;box-shadow:0 0 6px 1px rgba(255,176,46,.7),0 0 0 1px #0a0a0a}
 .vu .led.on.peak{background:#ff3b2a;box-shadow:0 0 6px 1px rgba(255,59,42,.8),0 0 0 1px #0a0a0a}
-.jacks{margin-top:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:3px 0;padding:0 2px 8px}
+.jacks{margin-top:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:4px 0;padding:7px 2px 7px;margin-bottom:2px;border-radius:5px;
+  background:linear-gradient(#0c0d0f,#15171a);box-shadow:inset 0 2px 4px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.08)}
 .jack{display:flex;flex-direction:column;align-items:center;gap:1px;cursor:crosshair;touch-action:none}
 .jack svg{width:24px;height:24px;display:block}
 .jlabel{font:800 6.8px/1 Arial,sans-serif;letter-spacing:.06em;color:#e7e3d5;padding:1.5px 4px;border-radius:2px;text-transform:uppercase;white-space:nowrap}
@@ -103,7 +106,7 @@ select{max-width:210px;padding-right:6px}
 /* ---------- cables ---------- */
 #cables{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:4}
 .cable .shadow{fill:none;stroke:#000;stroke-opacity:.4;stroke-width:7;stroke-linecap:round}
-.cable .body{fill:none;stroke-width:5.2;stroke-linecap:round}
+.cable .body,.temp .body{fill:none;stroke-width:4.6;stroke-linecap:round}
 .cable .shine{fill:none;stroke:#fff;stroke-opacity:.38;stroke-width:1.5;stroke-linecap:round}
 .cable .hit{fill:none;stroke:transparent;stroke-width:14;stroke-linecap:round;pointer-events:stroke;cursor:pointer}
 .cable:hover .body{filter:brightness(1.25)}
@@ -117,8 +120,18 @@ body.dragging #cables .hit,body.dragging #cables .plug{pointer-events:none}
 .keybed{flex:1;display:flex;align-items:stretch;background:linear-gradient(#0e0f11,#08090a);padding:14px 22px 16px;gap:22px;box-shadow:inset 0 4px 10px #000}
 .kbplate{flex:1;position:relative;border-radius:3px;background-image:var(--brushed),linear-gradient(180deg,#2c2f33,#17191b);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 0 1px #000;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px}
-.kbplate b{font:800 15px Arial;letter-spacing:.5em;color:#ece8da;margin-right:-.5em}
-.kbplate i{font:700 8px Arial;letter-spacing:.4em;color:#8d8a7d;font-style:normal}
+.kbplate{flex-direction:row;gap:56px}
+.kbbrand{display:flex;flex-direction:column;align-items:center;gap:8px}
+.kbbrand b{font:800 15px Arial;letter-spacing:.5em;color:#ece8da;margin-right:-.5em}
+.kbbrand i{font:700 8px Arial;letter-spacing:.4em;color:#8d8a7d;font-style:normal}
+.wheels{display:flex;gap:18px}
+.wcell{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wcell span{font:800 7.5px Arial;letter-spacing:.16em;color:#cfcabb}
+.wheel{position:relative;width:38px;height:104px;border-radius:7px;cursor:ns-resize;touch-action:none;outline:none;
+  box-shadow:inset 0 0 0 2px #0b0b0c,0 0 0 2px #050506,0 1px 0 2px rgba(255,255,255,.1),0 4px 8px rgba(0,0,0,.7);
+  background-color:#161617;background-image:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,0) 28%,rgba(255,255,255,.1) 50%,rgba(0,0,0,0) 72%,rgba(0,0,0,.9)),repeating-linear-gradient(180deg,#44454a 0 3px,#121213 3px 8px);
+  background-position:0 0,0 0}
+.wheel:focus-visible{box-shadow:0 0 0 2px #f0cf7a}
 .manuals{display:flex;flex-direction:column;gap:8px;flex:none}
 .manual{position:relative;width:648px;height:66px;background:#000;border-top:3px solid #1a0d05;border-radius:0 0 3px 3px}
 .wk{position:absolute;top:0;width:17px;height:63px;background:linear-gradient(#fdfcf6,#ebe7d6 85%,#cfcab4);border:1px solid #6b6652;border-top:0;border-radius:0 0 3px 3px;cursor:pointer;touch-action:none}
@@ -134,6 +147,7 @@ body.dragging #cables .hit,body.dragging #cables .plug{pointer-events:none}
     <radialGradient id="kCap" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="#7d7e84"/><stop offset=".45" stop-color="#2b2b2e"/><stop offset="1" stop-color="#0a0a0b"/></radialGradient>
     <linearGradient id="nut" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3f5f6"/><stop offset=".5" stop-color="#899096"/><stop offset="1" stop-color="#d6dadd"/></linearGradient>
     <radialGradient id="hole" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000"/><stop offset=".72" stop-color="#0a0a0a"/><stop offset="1" stop-color="#40444a"/></radialGradient>
+    <radialGradient id="chrome" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#a0a6ab"/><stop offset="1" stop-color="#4b4f54"/></radialGradient>
     <linearGradient id="lev" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f969c"/><stop offset=".5" stop-color="#f4f6f7"/><stop offset="1" stop-color="#7d848a"/></linearGradient>
   </defs>
 </svg>
@@ -168,7 +182,13 @@ body.dragging #cables .hit,body.dragging #cables .plug{pointer-events:none}
         <div class="row">
           <div class="cheek wood-v"></div>
           <div class="keybed" id="keybed">
-            <div class="kbplate"><b>REDLINE</b><i>MODULAR SYNTHESIZER</i></div>
+            <div class="kbplate">
+              <div class="wheels">
+                <div class="wcell"><div class="wheel" id="wBend" data-w="bend" data-spring="1" tabindex="0" role="slider" aria-label="Pitch bend"></div><span>PITCH</span></div>
+                <div class="wcell"><div class="wheel" id="wMod" data-w="mod" tabindex="0" role="slider" aria-label="Modulation"></div><span>MOD</span></div>
+              </div>
+              <div class="kbbrand"><b>REDLINE</b><i>MODULAR SYNTHESIZER</i></div>
+            </div>
             <div class="manuals" id="manuals"></div>
           </div>
           <div class="cheek wood-v"></div>
@@ -189,11 +209,11 @@ body.dragging #cables .hit,body.dragging #cables .plug{pointer-events:none}
    ===================================================================== */
 const svgURI = s => `url("data:image/svg+xml;utf8,${encodeURIComponent(s)}")`;
 const tex = (w,h,fx,fy,seed,matrix) => svgURI(
-  `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><filter id='f' x='0' y='0' width='100%' height='100%'>`+
+  `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><filter id='f' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'>`+
   `<feTurbulence type='fractalNoise' baseFrequency='${fx} ${fy}' numOctaves='4' seed='${seed}' stitchTiles='stitch'/>`+
   `<feColorMatrix type='matrix' values='${matrix}'/></filter><rect width='100%' height='100%' filter='url(#f)'/></svg>`);
 const rs = document.documentElement.style;
-const WOOD = '0.70 0 0 0 0.30  0.44 0 0 0 0.12  0.22 0 0 0 0.04  0 0 0 0 1';
+const WOOD = '0.55 0 0 0 0.10  0.27 0 0 0 0.04  0.12 0 0 0 0.015  0 0 0 0 1';
 rs.setProperty('--wood-v', tex(240,640,0.16,0.007,11,WOOD));
 rs.setProperty('--wood-h', tex(640,240,0.007,0.16,5,WOOD));
 rs.setProperty('--brushed', tex(300,300,0.004,0.85,3,'0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0.5 0 0 0 -0.2'));
@@ -288,7 +308,6 @@ function knobSVG(k){
     const a = (-135 + 270*(n>1 ? i/(n-1) : 0)) * Math.PI/180, s = Math.sin(a), c = -Math.cos(a);
     const big = !k.steps && (i===0 || i===10);
     t += `<line class="tk${big?' big':''}" x1="${f2(s*21.5)}" y1="${f2(c*21.5)}" x2="${f2(s*24.6)}" y2="${f2(c*24.6)}"/>`;
-    if(k.steps && k.labels) t += `<text class="kt" text-anchor="middle" dominant-baseline="central" x="${f2(s*28.6)}" y="${f2(c*28.6)}">${k.labels[i]}</text>`;
   }
   if(!k.steps){
     const e = (deg,txt) => { const a=deg*Math.PI/180; return `<text class="kt" text-anchor="middle" dominant-baseline="central" x="${f2(Math.sin(a)*28.4)}" y="${f2(-Math.cos(a)*28.4)}">${txt}</text>`; };
@@ -323,7 +342,7 @@ const switchSVG = () => `<svg viewBox="0 0 28 22" aria-hidden="true">
 
 function moduleHTML(m){
   const knobs = (m.knobs||[]).map(k =>
-    `<div class="kcell"><div class="knob" tabindex="0" role="slider" aria-label="${m.title} ${k.label}" data-p="${m.id}.${k.id}">${knobSVG(k)}</div><div class="klabel">${k.label}</div></div>`).join('');
+    `<div class="kcell"><div class="knob" tabindex="0" role="slider" aria-label="${m.title} ${k.label}" data-p="${m.id}.${k.id}">${knobSVG(k)}</div><div class="klabel">${k.label}</div>${k.steps?'<div class="kval"></div>':''}</div>`).join('');
   const sws = (m.switches||[]).map(s =>
     `<div class="sw" data-p="${m.id}.${s.id}" role="switch" tabindex="0" aria-label="${m.title} ${s.off}/${s.on}"><span class="s0">${s.off}</span>${switchSVG()}<span class="s1">${s.on}</span></div>`).join('');
   const jk = (m.jacks||[]).map(j =>
@@ -389,6 +408,7 @@ function paintParam(id){
     el.querySelector('.ptr').setAttribute('transform',`rotate(${-135+270*v})`);
     el.setAttribute('aria-valuemin','0'); el.setAttribute('aria-valuemax','1'); el.setAttribute('aria-valuenow',v.toFixed(3));
     el.setAttribute('aria-valuetext', paramText(id));
+    const kv = el.parentNode.querySelector('.kval'); if(kv) kv.textContent = paramText(id);
   }
 }
 function setParam(id,v,silent){
@@ -472,9 +492,11 @@ function path(a,b){
   return `M${f2(a.x)},${f2(a.y)} C${f2(a.x)},${f2(a.y+sag)} ${f2(b.x)},${f2(b.y+sag)} ${f2(b.x)},${f2(b.y)}`;
 }
 function plugSVG(p,color,attrs){
-  return `<g class="plug" ${attrs}><circle class="plug-ring" cx="${f2(p.x)}" cy="${f2(p.y)}" r="9.5" fill="#15110d"/>`+
-         `<circle cx="${f2(p.x)}" cy="${f2(p.y)}" r="6.6" fill="${color}" stroke="#000" stroke-opacity=".5" stroke-width=".8"/>`+
-         `<circle cx="${f2(p.x-1.6)}" cy="${f2(p.y-1.8)}" r="2" fill="#fff" opacity=".35"/></g>`;
+  const x = f2(p.x), y = f2(p.y);
+  return `<g class="plug" ${attrs}><circle class="plug-ring" cx="${x}" cy="${y}" r="9.4" fill="#0b0907"/>`+
+         `<circle cx="${x}" cy="${y}" r="8" fill="url(#chrome)" stroke="#222" stroke-width=".6"/>`+
+         `<circle cx="${x}" cy="${y}" r="5.2" fill="${color}" stroke="#000" stroke-opacity=".6" stroke-width=".8"/>`+
+         `<circle cx="${f2(p.x-1.5)}" cy="${f2(p.y-1.7)}" r="1.7" fill="#fff" opacity=".4"/></g>`;
 }
 function renderCables(){
   cablesSVG.setAttribute('width', cab.offsetWidth); cablesSVG.setAttribute('height', cab.offsetHeight);
@@ -491,7 +513,7 @@ function renderCables(){
     const a = jackCenter(drag.fixed);
     if(a){ const d = path(a,drag.pos);
       out += `<g class="temp"><path class="shadow" d="${d}" transform="translate(3,6)"/><path class="body" d="${d}" stroke="${drag.color}"/><path class="shine" d="${d}" transform="translate(-1,-1.4)"/>`+
-        `<circle cx="${f2(drag.pos.x)}" cy="${f2(drag.pos.y)}" r="9.5" fill="#15110d" stroke="#000"/><circle cx="${f2(drag.pos.x)}" cy="${f2(drag.pos.y)}" r="6.6" fill="${drag.color}" stroke="#000" stroke-opacity=".5"/></g>`; }
+        plugSVG(drag.pos,drag.color,'style="pointer-events:none"')+`</g>`; }
   }
   cablesSVG.innerHTML = out;
 }
@@ -562,6 +584,9 @@ cablesSVG.addEventListener('contextmenu', e => { const h = e.target.closest('.hi
 const st = (id,idx) => [idx];
 const FACTORY = [
   {name:'INIT', params:{}, cables:[]},
+  {name:'Basic Voice',
+   params:{'osc1.wave':[2],'osc1.range':[3],'mixA.l1':.8,'lpf.cutoff':.6,'lpf.emph':.3,'env1.attack':.02,'env1.decay':.5,'env1.sustain':.7,'env1.release':.3},
+   cables:[['kbd.pitch','osc1.cv'],['kbd.gate','env1.gate'],['osc1.out','mixA.in1'],['mixA.out','lpf.in'],['lpf.out','vca1.in1'],['env1.out','vca1.cv1'],['vca1.out','main.inl'],['vca1.out','main.inr']]},
   {name:'Lead — Classic',
    params:{'osc1.wave':[2],'osc2.wave':[2],'osc2.freq':.515,'osc3.wave':[4],'osc3.range':[2],'osc3.freq':.49,
      'mixA.l1':.7,'mixA.l2':.7,'mixA.l3':.45,'lpf.cutoff':.55,'lpf.emph':.45,'lpf.amt':.65,
@@ -583,7 +608,7 @@ const FACTORY = [
      ['osc1.saw','mixA.in1'],['osc2.saw','mixA.in2'],['osc3.out','mixA.in3'],['mixA.out','lpf.in'],['lfo1.tri','lpf.cv2'],['env1.out','lpf.cv1'],
      ['lpf.out','vca1.in1'],['env2.out','vca1.cv1'],['vca1.out','phaser.in'],['phaser.out','reverb.in'],['reverb.out','main.inl'],['reverb.out','main.inr'],['noise.pink','mixA.in4']]},
 ];
-const LS_STATE = 'redline.state.v1', LS_USER = 'redline.presets.v1';
+const LS_STATE = 'redline.state.v2', LS_USER = 'redline.presets.v1';
 const lsGet = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
 const lsSet = (k,v) => { try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
 let saveTimer = 0;
@@ -671,6 +696,21 @@ window.addEventListener('keydown', e => {
   const n = KEYMAP[e.key.toLowerCase()]; if(n) note(0,n,true);
 });
 window.addEventListener('keyup', e => { const n = KEYMAP[e.key.toLowerCase()]; if(n) note(0,n,false); });
+
+/* ---------- pitch / mod wheels ---------- */
+$$('.wheel').forEach(el => {
+  const id = el.dataset.w, spring = !!el.dataset.spring; let v = spring ? .5 : 0;
+  const paint = () => { el.style.backgroundPosition = `0 0,0 ${Math.round(v*56)}px`; el.setAttribute('aria-valuenow',(spring?v*2-1:v).toFixed(2)); };
+  const send = () => emit('wheel',{id,value:spring ? v*2-1 : v});
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); el.setPointerCapture(e.pointerId); el.focus({preventScroll:true});
+    const y0 = e.clientY, v0 = v;
+    const mv = ev => { v = clamp(v0 + (y0-ev.clientY)/(80*zoom()),0,1); paint(); send(); showReadout(`${id==='bend'?'Pitch bend':'Mod wheel'}: ${(spring?v*2-1:v).toFixed(2)}`); };
+    const up = () => { el.removeEventListener('pointermove',mv); el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up); if(spring){ v = .5; paint(); send(); } };
+    el.addEventListener('pointermove',mv); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
+  });
+  paint();
+});
 
 /* ---------- LEDs ---------- */
 function setLED(modId,on){ const el = $(`.led[data-led="${modId}"]`); if(el) el.classList.toggle('on',!!on); }
