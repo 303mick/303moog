@@ -8,33 +8,73 @@ using namespace tokens;
 void KnobLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w, int h, float pos,
                                         float startAngle, float endAngle, juce::Slider& s)
 {
+    // Skirted bakelite knob: flared black skirt, brushed-aluminium cap, pointer wedge,
+    // white indicator line running down the skirt. Proportions follow the 62-unit design grid.
     auto bounds = juce::Rectangle<float> ((float) x, (float) y, (float) w, (float) h).reduced (4.0f);
-    const float r = juce::jmin (bounds.getWidth(), bounds.getHeight()) * 0.5f;
+    const float R = juce::jmin (bounds.getWidth(), bounds.getHeight()) * 0.5f;
     const auto c = bounds.getCentre();
-    const float thick = r * 0.14f;
-    const float arcR = r - thick * 0.5f;
+    const float u = R / 24.6f;                         // 1 design unit in pixels
     const float angle = startAngle + pos * (endAngle - startAngle);
 
+    // value track just outside the skirt
+    const float trackR = 22.6f * u;
     juce::Path track, value;
-    track.addCentredArc (c.x, c.y, arcR, arcR, 0.0f, startAngle, endAngle, true);
-    value.addCentredArc (c.x, c.y, arcR, arcR, 0.0f, startAngle, angle, true);
+    track.addCentredArc (c.x, c.y, trackR, trackR, 0.0f, startAngle, endAngle, true);
+    value.addCentredArc (c.x, c.y, trackR, trackR, 0.0f, startAngle, angle, true);
     g.setColour (color_track);
-    g.strokePath (track, juce::PathStrokeType (thick, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    g.strokePath (track, juce::PathStrokeType (1.6f * u, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     g.setColour (s.isEnabled() ? color_accent_main : color_accent_dim);
-    g.strokePath (value, juce::PathStrokeType (thick, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    g.strokePath (value, juce::PathStrokeType (1.6f * u, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
-    const float capR = r - thick * 1.8f;
-    g.setColour (color_bg_panel);
-    g.fillEllipse (c.x - capR, c.y - capR, capR * 2.0f, capR * 2.0f);
-    juce::Path tick;
-    tick.addRoundedRectangle (-thick * 0.35f, -capR, thick * 0.7f, capR * 0.45f, thick * 0.35f);
-    g.setColour (color_text_primary);
-    g.fillPath (tick, juce::AffineTransform::rotation (angle).translated (c.x, c.y));
+    auto disc = [&] (float r) { return juce::Rectangle<float> (c.x - r * u, c.y - r * u, 2 * r * u, 2 * r * u); };
+
+    g.setColour (juce::Colours::black.withAlpha (0.5f));                       // drop shadow
+    g.fillEllipse (disc (19.5f).translated (1.3f * u, 2.2f * u));
+
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff3d3e43), c.x - 6 * u, c.y - 8 * u,
+                                             juce::Colour (0xff060607), c.x + 16 * u, c.y + 16 * u, true));
+    g.fillEllipse (disc (19.5f));                                              // skirt
+    g.setColour (juce::Colour (0xff020203));
+    g.drawEllipse (disc (19.5f), 0.8f * u);
+    g.setColour (juce::Colours::black.withAlpha (0.55f));
+    g.drawEllipse (disc (17.6f), 0.6f * u);                                    // flare edge
+
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff34353a), c.x - 5 * u, c.y - 7 * u,
+                                             juce::Colour (0xff050506), c.x + 14 * u, c.y + 14 * u, true));
+    g.fillEllipse (disc (14.6f));                                              // upper body
+
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xfff4f5f6), c.x - 8 * u, c.y - 8 * u,
+                                             juce::Colour (0xffc9ccd0), c.x + 8 * u, c.y + 8 * u, false));
+    g.fillEllipse (disc (10.2f));                                              // aluminium cap
+    g.setColour (juce::Colour (0xff3b3d41));
+    g.drawEllipse (disc (10.2f), 0.8f * u);
+    for (float r : { 2.2f, 3.6f, 5.0f, 6.4f, 7.8f })                           // brushed rings
+    {
+        g.setColour (juce::Colours::white.withAlpha (0.10f));
+        g.drawEllipse (disc (r), 0.45f * u);
+    }
+
+    // rotating parts: indicator line on the skirt and the pointer wedge on the cap
+    const auto rot = juce::AffineTransform::rotation (angle).translated (c.x, c.y);
+    juce::Path line, wedge;
+    line.startNewSubPath (0.0f, -12.6f * u);
+    line.lineTo (0.0f, -18.4f * u);
+    g.setColour (juce::Colour (0xfff4f2ea));
+    g.strokePath (line, juce::PathStrokeType (2.0f * u, juce::PathStrokeType::curved, juce::PathStrokeType::rounded), rot);
+    wedge.startNewSubPath (-2.5f * u, -9.4f * u);
+    wedge.lineTo (2.5f * u, -9.4f * u);
+    wedge.lineTo (1.0f * u, -1.2f * u);
+    wedge.lineTo (-1.0f * u, -1.2f * u);
+    wedge.closeSubPath();
+    g.setColour (juce::Colour (0xff1a1b1e));
+    g.fillPath (wedge, rot);
+    g.setColour (juce::Colours::black);
+    g.strokePath (wedge, juce::PathStrokeType (0.4f * u), rot);
 
     if (s.hasKeyboardFocus (false))
     {
         g.setColour (color_accent_main);
-        g.drawEllipse (c.x - r, c.y - r, r * 2.0f, r * 2.0f, 1.5f);
+        g.drawEllipse (disc (24.0f), 1.5f);
     }
 }
 

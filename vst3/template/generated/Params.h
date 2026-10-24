@@ -22,7 +22,7 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
     layout.add (std::make_unique<juce::AudioParameterFloat> (juce::ParameterID { ids::cutoff, 1 }, "Cutoff",
         juce::NormalisableRange<float> (20.0f, 20000.0f, 0.0f, 0.25f), 20000.0f,
         juce::AudioParameterFloatAttributes().withLabel ("Hz")
-            .withStringFromValueFunction ([] (float v, int) { return juce::String (v, 0); })));
+            .withStringFromValueFunction ([] (float v, int) { return juce::String (juce::roundToInt (v)); })));
     layout.add (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { ids::bypass, 1 }, "Bypass", false));
     return layout;
 }

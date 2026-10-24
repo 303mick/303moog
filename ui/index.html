@@ -145,6 +145,9 @@ body.dragging #cables .hit,body.dragging #cables .plug{pointer-events:none}
   <defs>
     <radialGradient id="kSkirt" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#3d3e43"/><stop offset=".6" stop-color="#18181a"/><stop offset="1" stop-color="#060607"/></radialGradient>
     <radialGradient id="kCap" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="#7d7e84"/><stop offset=".45" stop-color="#2b2b2e"/><stop offset="1" stop-color="#0a0a0b"/></radialGradient>
+    <radialGradient id="kBody" cx=".36" cy=".3" r=".95"><stop offset="0" stop-color="#34353a"/><stop offset=".55" stop-color="#141416"/><stop offset="1" stop-color="#050506"/></radialGradient>
+    <linearGradient id="kAl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f5f6"/><stop offset=".3" stop-color="#b9bcc1"/><stop offset=".55" stop-color="#e3e5e8"/><stop offset=".8" stop-color="#8d9096"/><stop offset="1" stop-color="#c9ccd0"/></linearGradient>
+    <linearGradient id="kWedge" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#050506"/><stop offset=".5" stop-color="#2a2b2f"/><stop offset="1" stop-color="#050506"/></linearGradient>
     <linearGradient id="nut" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3f5f6"/><stop offset=".5" stop-color="#899096"/><stop offset="1" stop-color="#d6dadd"/></linearGradient>
     <radialGradient id="hole" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000"/><stop offset=".72" stop-color="#0a0a0a"/><stop offset="1" stop-color="#40444a"/></radialGradient>
     <radialGradient id="chrome" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#a0a6ab"/><stop offset="1" stop-color="#4b4f54"/></radialGradient>
@@ -313,13 +316,21 @@ function knobSVG(k){
     const e = (deg,txt) => { const a=deg*Math.PI/180; return `<text class="kt" text-anchor="middle" dominant-baseline="central" x="${f2(Math.sin(a)*28.4)}" y="${f2(-Math.cos(a)*28.4)}">${txt}</text>`; };
     t += e(-135,'0') + e(135,'10');
   }
+  // Skirted bakelite knob: flared black skirt, brushed-aluminium cap, pointer wedge, white line down the skirt.
+  let brush = '';
+  for(const r of [2.2,3.6,5,6.4,7.8]) brush += `<circle r="${r}" fill="none" stroke="${r%2>1?'#fff':'#000'}" stroke-opacity=".10" stroke-width=".45"/>`;
   return `<svg viewBox="-31 -31 62 62" aria-hidden="true">${t}
     <circle cx="1.3" cy="2.2" r="19.5" fill="#000" opacity=".5"/>
-    <circle r="19.5" fill="url(#kSkirt)" stroke="#040405" stroke-width=".8"/>
-    <circle r="18" fill="none" stroke="#505156" stroke-width="2.3" stroke-dasharray="1.15 1.05" opacity=".95"/>
-    <circle r="14.4" fill="url(#kCap)" stroke="#000" stroke-width=".7"/>
-    <ellipse cx="-3.6" cy="-6.2" rx="7" ry="3.6" fill="#fff" opacity=".1"/>
-    <g class="ptr"><line x1="0" y1="-4.5" x2="0" y2="-14" stroke="#f7f3e5" stroke-width="2.1" stroke-linecap="round"/></g>
+    <circle r="19.5" fill="url(#kSkirt)" stroke="#020203" stroke-width=".8"/>
+    <circle r="17.6" fill="none" stroke="#000" stroke-opacity=".55" stroke-width=".6"/>
+    <path d="M-15.5 -10.5 A18.7 18.7 0 0 1 -4 -18" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.1" stroke-linecap="round"/>
+    <circle r="14.6" fill="url(#kBody)" stroke="#000" stroke-width=".7"/>
+    <circle r="10.2" fill="url(#kAl)" stroke="#3b3d41" stroke-width=".8"/>${brush}
+    <g class="ptr">
+      <line x1="0" y1="-12.6" x2="0" y2="-18.4" stroke="#f4f2ea" stroke-width="2" stroke-linecap="round"/>
+      <path d="M-2.5 -9.4 L2.5 -9.4 L1 -1.2 L-1 -1.2 Z" fill="url(#kWedge)" stroke="#000" stroke-width=".4"/>
+      <path d="M-.7 -8.6 L-.5 -2" stroke="#fff" stroke-opacity=".25" stroke-width=".5" stroke-linecap="round" fill="none"/>
+    </g>
   </svg>`;
 }
 function jackSVG(){

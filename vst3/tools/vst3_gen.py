@@ -103,11 +103,13 @@ def gen_params(spec):
             unit = p.get("unit", "")
             step = p.get("step", 0.0)
             dec = int(p.get("decimals", 1))
+            # juce::String (float, 0) means "default precision", so whole numbers need roundToInt
+            fmt = "juce::String (juce::roundToInt (v))" if dec == 0 else f"juce::String (v, {dec})"
             adds.append(
                 f"    layout.add (std::make_unique<juce::AudioParameterFloat> ({pidexpr}, \"{name}\",\n"
                 f"        juce::NormalisableRange<float> ({lo}f, {hi}f, {step}f, {skew}f), {df}f,\n"
                 f"        juce::AudioParameterFloatAttributes().withLabel (\"{unit}\")\n"
-                f"            .withStringFromValueFunction ([] (float v, int) {{ return juce::String (v, {dec}); }})));")
+                f"            .withStringFromValueFunction ([] (float v, int) {{ return {fmt}; }})));")
         elif t == "bool":
             adds.append(f"    layout.add (std::make_unique<juce::AudioParameterBool> ({pidexpr}, \"{name}\", {str(bool(p.get('default', False))).lower()}));")
         elif t == "choice":
