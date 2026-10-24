@@ -366,9 +366,9 @@
       document.body.appendChild(badgeEl);
     }
     const on = ctx && ctx.state === 'running';
-    badgeEl.textContent = on ? 'SOUND ON' : 'CLICK ANYWHERE OR PRESS A KEY FOR SOUND';
+    badgeEl.textContent = on ? 'SOUND ON 2022 keys: A S D F G H J K L (W E T Y U O P black) 2022 Z X C V B N M lower' : 'CLICK ANYWHERE OR PRESS A KEY FOR SOUND';
     badgeEl.style.background = on ? 'rgba(20,90,30,.92)' : 'rgba(120,20,16,.92)';
-    if (on) setTimeout(() => { if (badgeEl) badgeEl.style.opacity = '0'; }, 2200);
+    if (on) setTimeout(() => { if (badgeEl) badgeEl.style.opacity = '0'; }, 6000);
   }
   ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, () => ensure(), { capture: true }));
   document.addEventListener('DOMContentLoaded', badge); if (document.readyState !== 'loading') badge();

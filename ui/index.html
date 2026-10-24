@@ -707,12 +707,22 @@ $('#manuals').addEventListener('pointerdown', e => {
   const up = () => { note(m,n,false); window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); };
   window.addEventListener('pointerup',up); window.addEventListener('pointercancel',up);
 });
-const KEYMAP = {a:60,w:61,s:62,e:63,d:64,f:65,t:66,g:67,y:68,h:69,u:70,j:71,k:72,o:73,l:74};
+/* Computer keyboard: home row = white keys, row above = black keys (upper manual, from C4);
+   bottom row Z..M = lower manual from C3. Uses physical key positions so any layout works. */
+const KEYMAP = {KeyA:[0,60],KeyW:[0,61],KeyS:[0,62],KeyE:[0,63],KeyD:[0,64],KeyF:[0,65],KeyT:[0,66],KeyG:[0,67],KeyY:[0,68],KeyH:[0,69],KeyU:[0,70],KeyJ:[0,71],KeyK:[0,72],KeyO:[0,73],KeyL:[0,74],KeyP:[0,75],Semicolon:[0,76],
+  KeyZ:[1,48],KeyX:[1,50],KeyC:[1,52],KeyV:[1,53],KeyB:[1,55],KeyN:[1,57],KeyM:[1,59]};
+const keyDown = new Map();   // e.code -> [manual,note] currently sounding, so release always matches the press
+const isTextField = t => t && ((t.tagName === 'INPUT' && !/^(range|checkbox|button)$/.test(t.type)) || t.tagName === 'TEXTAREA' || t.isContentEditable);
 window.addEventListener('keydown', e => {
-  if(e.repeat || e.ctrlKey || e.metaKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
-  const n = KEYMAP[e.key.toLowerCase()]; if(n) note(0,n,true);
-});
-window.addEventListener('keyup', e => { const n = KEYMAP[e.key.toLowerCase()]; if(n) note(0,n,false); });
+  if(e.repeat || e.ctrlKey || e.metaKey || e.altKey || isTextField(e.target)) return;
+  const m = KEYMAP[e.code]; if(!m || keyDown.has(e.code)) return;
+  if(e.target && e.target.tagName === 'SELECT') e.target.blur();
+  e.preventDefault(); keyDown.set(e.code, m); note(m[0], m[1], true);
+}, true);
+window.addEventListener('keyup', e => { const m = keyDown.get(e.code); if(!m) return; keyDown.delete(e.code); note(m[0], m[1], false); }, true);
+window.addEventListener('blur', () => { keyDown.forEach(m => note(m[0], m[1], false)); keyDown.clear(); });
+document.addEventListener('pointerdown', () => { try{ window.focus(); }catch(_){} }, true);
+presetSel.addEventListener('change', () => presetSel.blur());
 
 /* ---------- pitch / mod wheels ---------- */
 $$('.wheel').forEach(el => {
