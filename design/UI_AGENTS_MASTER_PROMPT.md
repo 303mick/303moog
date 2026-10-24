@@ -1565,17 +1565,38 @@ void KnobLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w, 
     g.setGradientFill (juce::ColourGradient (juce::Colour (0xff34353a), c.x - 5 * u, c.y - 7 * u,
                                              juce::Colour (0xff050506), c.x + 14 * u, c.y + 14 * u, true));
     g.fillEllipse (disc (14.6f));                                              // upper body
+    {   // specular sheen on the bakelite and a bright rim light on the skirt edge
+        juce::Graphics::ScopedSaveState ss (g);
+        g.addTransform (juce::AffineTransform::rotation (juce::degreesToRadians (-32.0f), c.x - 6.5f * u, c.y - 12.2f * u));
+        g.setGradientFill (juce::ColourGradient (juce::Colours::white.withAlpha (0.65f), c.x - 6.5f * u, c.y - 15.0f * u,
+                                                 juce::Colours::white.withAlpha (0.0f), c.x - 6.5f * u, c.y - 9.0f * u, false));
+        g.fillEllipse (juce::Rectangle<float> (c.x - 16.0f * u, c.y - 16.8f * u, 19.0f * u, 9.2f * u));
+    }
+    g.setGradientFill (juce::ColourGradient (juce::Colours::white.withAlpha (0.8f), c.x - 13 * u, c.y - 13 * u,
+                                             juce::Colour (0x779fb4ff), c.x + 13 * u, c.y + 13 * u, false));
+    g.drawEllipse (disc (18.9f), 1.1f * u);
 
-    g.setGradientFill (juce::ColourGradient (juce::Colour (0xfff4f5f6), c.x - 8 * u, c.y - 8 * u,
-                                             juce::Colour (0xffc9ccd0), c.x + 8 * u, c.y + 8 * u, false));
-    g.fillEllipse (disc (10.2f));                                              // aluminium cap
-    g.setColour (juce::Colour (0xff3b3d41));
-    g.drawEllipse (disc (10.2f), 0.8f * u);
+    // chrome-style aluminium: multi-stop sweep, bright rim, glint
+    juce::ColourGradient al (juce::Colour (0xffffffff), c.x - 9 * u, c.y - 9 * u,
+                             juce::Colour (0xff6e7077), c.x + 9 * u, c.y + 9 * u, false);
+    al.addColour (0.18, juce::Colour (0xffcfd2d7));
+    al.addColour (0.34, juce::Colour (0xff7c7f86));
+    al.addColour (0.50, juce::Colour (0xfff2f4f6));
+    al.addColour (0.68, juce::Colour (0xff9a9da4));
+    al.addColour (0.84, juce::Colour (0xffe6e8eb));
+    g.setGradientFill (al);
+    g.fillEllipse (disc (10.2f));
+    g.setColour (juce::Colour (0xff2c2e32));
+    g.drawEllipse (disc (10.2f), 0.9f * u);
     for (float r : { 2.2f, 3.6f, 5.0f, 6.4f, 7.8f })                           // brushed rings
     {
         g.setColour (juce::Colours::white.withAlpha (0.10f));
         g.drawEllipse (disc (r), 0.45f * u);
     }
+    juce::Path glint;
+    glint.addCentredArc (c.x, c.y, 8.8f * u, 8.8f * u, 0.0f, juce::degreesToRadians (-80.0f), juce::degreesToRadians (-8.0f), true);
+    g.setColour (juce::Colours::white.withAlpha (0.65f));
+    g.strokePath (glint, juce::PathStrokeType (2.6f * u, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
     // rotating parts: indicator line on the skirt and the pointer wedge on the cap
     const auto rot = juce::AffineTransform::rotation (angle).translated (c.x, c.y);
