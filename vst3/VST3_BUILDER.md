@@ -1,0 +1,57 @@
+# VST3 Builder: standards and procedure
+
+Applies to every agent in the VST3 Builder squad. Read it with `design/UI_AGENTS.md`.
+
+## The squad
+| Agent | Owns | Writes |
+|---|---|---|
+| 1 UI Design | the look | `references.md`, `direction.md`, `DESIGN.md`, `tokens.json`, `tokens.css` |
+| 2 UX Design | structure, states, parameters, copy | `ux.md` incl. the parameter map |
+| 3 Builder | the mock and the real plugin | `mock/`, `vst3/plugins/<slug>/`, `native/*.png`, `build-notes.md` |
+| ui-qa-critic | the verdict | `qa/round-N.md` |
+
+Lead command: `/vst3-builder <idea>`. The older six-agent `/ui-agents` pipeline still works for UI-only jobs; Agent 1 and 2 are those specialists wrapped in two modes.
+
+## Framework decision
+**JUCE 8, CMake, VST3.** Reasons: it is what Instigator and Dub Bud already use, it builds on a free GitHub Windows runner, it bundles the VST3 SDK, and the same code builds on macOS and Linux later. VSTGUI remains an option for UI-only work but is not part of the default path (it cannot be built or looked at in the cloud workspace; JUCE can).
+
+## Architecture rules
+1. **Three layers.** `Source/Dsp/` JUCE-free sound code; `PluginProcessor` glues parameters to DSP; `PluginEditor` draws. The DSP layer never includes JUCE, so it is unit-testable anywhere.
+2. **Parameters come from `plugin.json`.** `vst3_gen.py` writes `Params.h`. Never type a parameter ID by hand. Never change a released ID or its range (hosts store them); add a new ID and bump `parameterVersion` instead.
+3. **Looks come from `tokens.json`.** `vst3_gen.py` writes `Tokens.h`. The editor uses `tokens::` constants only. No hex colour or pixel size appears in editor code.
+4. **Generated files are committed and checked.** CI runs `vst3_gen.py --check`; a stale file fails the build.
+
+## Real-time rules (audio thread)
+No allocation, no locks, no file or network I/O, no `std::string` building, no logging, no exceptions in `processBlock` or anything it calls. Allocate in `prepareToPlay`. Smooth every parameter that changes sound (no zipper noise). Use `ScopedNoDenormals`. Cross-thread values (meters, waveform) go through `std::atomic` or a lock-free FIFO, never a mutex.
+
+## Native UI rules
+- Aspect-locked, resizable, size limits from tokens. Layout scales from `getWidth() / size_base_width`.
+- Vector drawing; crisp at 100 to 200 percent scaling.
+- Knobs: drag, double-click reset to default, mouse wheel, keyboard focus ring, host automation visibly moves them.
+- Timer for live meters at 30 Hz; the timer only reads atomics.
+- Fonts are embedded (BinaryData) with licence recorded; never rely on a system font.
+
+## Native build procedure
+1. Scaffold from `vst3/template/` into `vst3/plugins/<slug>/`.
+2. `plugin.json` from the parameter map; run the generator.
+3. DSP with tests first; `ctest` green.
+4. Editor ported from the mock; `snapshot` renders `native/default.png`, `native/min.png`, `native/max.png`.
+5. Build: `cmake -S vst3 -B build -DPLUGIN_DIR=plugins/<slug> -DJUCE_SOURCE_DIR=<juce>`; `cmake --build build -j2`; `ctest --test-dir build`.
+6. CI builds Windows, runs tests, validates with pluginval, uploads the `.vst3`.
+7. `build-notes.md` lists commands run, results, and a **Not verified** section.
+
+## What counts as verified
+| Claim | Evidence required |
+|---|---|
+| DSP is correct | tests pass in this run |
+| Plugin compiles | a build log from this run (Linux here, Windows in CI) |
+| Native UI matches the design | `native/*.png` compared with the mock by the critic |
+| Passes the VST3 validator | pluginval run in CI, strictness 5 |
+| Works in Ableton | the human loaded it; nothing else counts |
+Never write "works in Ableton" or "passes pluginval" unless it was observed.
+
+## Install (personal use, Windows)
+Download the `.vst3` artifact from the Actions run, unzip, copy the `.vst3` folder to `C:\Program Files\Common Files\VST3\`, rescan plugins in Ableton (Preferences, Plug-Ins, Rescan).
+
+## Release gate (adds to the Polish Gate)
+Pass only if: tests green, generated files current, Linux build clean with zero warnings in plugin code, Windows CI green, native snapshots judged by the critic at 8 or more on every Polish criterion, and the Not-verified list is honest.

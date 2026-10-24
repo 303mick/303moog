@@ -1,0 +1,78 @@
+name: vst3-build
+
+on:
+  push:
+    branches: [main]
+    paths: ['vst3/**', '.github/workflows/vst3-build.yml', 'design/**/tokens.json']
+  pull_request:
+    paths: ['vst3/**']
+  workflow_dispatch:
+    inputs:
+      plugin_dir:
+        description: 'Folder under vst3/ to build (template or plugins/<slug>)'
+        default: 'template'
+
+env:
+  PLUGIN_DIR: ${{ github.event.inputs.plugin_dir || 'template' }}
+
+jobs:
+  linux-test:
+    name: Linux build, tests, native snapshot
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libasound2-dev libgl1-mesa-dev libfreetype-dev libfontconfig1-dev libcurl4-openssl-dev
+      - name: Generated files are current
+        run: |
+          for d in vst3/template vst3/plugins/*/; do
+            [ -f "$d/plugin.json" ] || continue
+            tok="$d/tokens.sample.json"; [ -f "$tok" ] || tok="design/$(basename $d)/tokens.json"
+            python3 vst3/tools/vst3_gen.py --spec "$d/plugin.json" --tokens "$tok" --out "$d/generated" --check
+          done
+      - name: Configure
+        run: cmake -S vst3 -B build -DCMAKE_BUILD_TYPE=Release -DPLUGIN_DIR=${{ env.PLUGIN_DIR }}
+      - name: Build
+        run: cmake --build build --config Release -j4
+      - name: Tests
+        run: ctest --test-dir build --output-on-failure
+      - name: Native UI snapshots
+        run: |
+          S=$(find build -name snapshot -type f -perm -u+x | head -1)
+          mkdir -p native
+          "$S" native/default.png
+          "$S" native/min.png 360
+          "$S" native/max.png 960
+      - uses: actions/upload-artifact@v4
+        with: { name: native-snapshots, path: native/*.png }
+
+  windows-vst3:
+    name: Windows VST3 build and pluginval
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S vst3 -B build -DPLUGIN_DIR=${{ env.PLUGIN_DIR }}
+      - name: Build
+        run: cmake --build build --config Release -j4
+      - name: Tests
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Collect VST3
+        shell: bash
+        run: |
+          mkdir -p dist
+          find build -name "*.vst3" -type d -prune -exec cp -r {} dist/ \;
+          ls dist
+      - name: Validate with pluginval (strictness 5)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pv.zip
+          Expand-Archive pv.zip -DestinationPath pv
+          Get-ChildItem dist -Filter *.vst3 | ForEach-Object {
+            .\pv\pluginval.exe --strictness-level 5 --validate-in-process --skip-gui-tests $_.FullName
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - uses: actions/upload-artifact@v4
+        with: { name: vst3-windows, path: dist }

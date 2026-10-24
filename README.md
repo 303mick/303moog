@@ -39,3 +39,6 @@ If `window.RedlineHost.emit(event, data)` exists, every event is forwarded to it
 ## Status
 
 UI only for now. The knobs and cables report what they do, but no audio is generated from this repo yet.
+
+## VST3 Builder
+`/vst3-builder <idea>` runs three agents (UI Design, UX Design, Builder) and produces a designed, tested VST3 with Windows CI. See `vst3/README.md`.

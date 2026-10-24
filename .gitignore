@@ -35,3 +35,6 @@ obj/
 # Python
 __pycache__/
 *.pyc
+
+# VST3 builder scratch
+vst3/**/build/

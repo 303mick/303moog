@@ -1,0 +1,17 @@
+{
+  "color": {
+    "bg": { "base": "#14171c", "panel": "#1d222a" },
+    "text": { "primary": "#e8ecf2", "secondary": "#a3adbd" },
+    "accent": { "main": "#e4572e", "dim": "#7a3a2a" },
+    "track": "#333a46",
+    "meter": { "ok": "#5ec27f", "hot": "#e4572e" }
+  },
+  "size": {
+    "base": { "width": 480, "height": 300 },
+    "min": { "width": 360, "height": 225 },
+    "max": { "width": 960, "height": 600 },
+    "knob": 120,
+    "gutter": 24,
+    "text": { "label": 14, "value": 16 }
+  }
+}
